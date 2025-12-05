@@ -1,31 +1,65 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Materials.css';
-
-// Mock data for materials
-const materialsData = [
-    { id: 1, title: 'Data Structures Complete Notes', type: 'PDF', category: 'Data Structures', size: '2.5 MB', icon: '📄', color: '#e74c3c' },
-    { id: 2, title: 'OOP Concepts Presentation', type: 'PPT', category: 'Programming', size: '5.1 MB', icon: '📊', color: '#e67e22' },
-    { id: 3, title: 'DBMS Lab Manual', type: 'PDF', category: 'DBMS', size: '3.2 MB', icon: '📄', color: '#e74c3c' },
-    { id: 4, title: 'Algorithm Design Handbook', type: 'PDF', category: 'Algorithms', size: '4.8 MB', icon: '📄', color: '#e74c3c' },
-    { id: 5, title: 'OS Process Management Slides', type: 'PPT', category: 'Operating Systems', size: '6.3 MB', icon: '📊', color: '#e67e22' },
-    { id: 6, title: 'Network Protocols Reference', type: 'DOC', category: 'Networking', size: '1.8 MB', icon: '📝', color: '#3498db' },
-    { id: 7, title: 'SQL Practice Questions', type: 'PDF', category: 'DBMS', size: '1.2 MB', icon: '📄', color: '#e74c3c' },
-    { id: 8, title: 'Linked List Implementation Guide', type: 'PDF', category: 'Data Structures', size: '2.1 MB', icon: '📄', color: '#e74c3c' },
-    { id: 9, title: 'Java Programming Basics', type: 'PPT', category: 'Programming', size: '4.5 MB', icon: '📊', color: '#e67e22' },
-];
+import { materialsAPI } from '../api';
 
 const categories = ['All', 'Data Structures', 'Programming', 'DBMS', 'Algorithms', 'Operating Systems', 'Networking'];
 const fileTypes = ['All', 'PDF', 'PPT', 'DOC'];
 
+// Icon and color mapping
+const getIconAndColor = (type) => {
+    switch (type) {
+        case 'PDF':
+            return { icon: '📄', color: '#e74c3c' };
+        case 'PPT':
+            return { icon: '📊', color: '#e67e22' };
+        case 'DOC':
+            return { icon: '📝', color: '#3498db' };
+        default:
+            return { icon: '📁', color: '#9b59b6' };
+    }
+};
+
 const Materials = () => {
+    const [materialsData, setMaterialsData] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [selectedType, setSelectedType] = useState('All');
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const filteredMaterials = materialsData.filter(m => {
-        const categoryMatch = selectedCategory === 'All' || m.category === selectedCategory;
-        const typeMatch = selectedType === 'All' || m.type === selectedType;
-        return categoryMatch && typeMatch;
-    });
+    // Fetch materials from backend
+    useEffect(() => {
+        fetchMaterials();
+    }, [selectedCategory, selectedType]);
+
+    const fetchMaterials = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await materialsAPI.getAll(selectedCategory, selectedType);
+            if (response.success) {
+                setMaterialsData(response.data);
+            }
+        } catch (err) {
+            console.error('Error fetching materials:', err);
+            setError('Failed to load materials. Please try again later.');
+            setMaterialsData([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDownload = (material) => {
+        window.open(materialsAPI.getDownloadUrl(material._id), '_blank');
+    };
+
+    const handlePreview = (material) => {
+        // For PDFs, open in new tab
+        if (material.type === 'PDF') {
+            window.open(materialsAPI.getDownloadUrl(material._id), '_blank');
+        } else {
+            alert('Preview is only available for PDF files. Click Download to get the file.');
+        }
+    };
 
     return (
         <div className="materials-page page-content">
@@ -76,42 +110,67 @@ const Materials = () => {
             {/* Materials List */}
             <section className="section">
                 <div className="container">
-                    <div className="materials-list">
-                        {filteredMaterials.map((material) => (
-                            <div key={material.id} className="material-item card">
-                                <div className="material-icon-wrapper" style={{ background: `${material.color}15` }}>
-                                    <span className="material-type-icon" style={{ color: material.color }}>
-                                        {material.icon}
-                                    </span>
-                                </div>
-                                <div className="material-content">
-                                    <div className="material-main">
-                                        <h3 className="material-title">{material.title}</h3>
-                                        <div className="material-meta">
-                                            <span className="material-category">{material.category}</span>
-                                            <span className="material-dot">•</span>
-                                            <span className="material-type-label">{material.type}</span>
-                                            <span className="material-dot">•</span>
-                                            <span className="material-size">{material.size}</span>
-                                        </div>
-                                    </div>
-                                    <div className="material-actions">
-                                        <button className="btn btn-outline material-action-btn">
-                                            👁 Preview
-                                        </button>
-                                        <button className="btn btn-primary material-action-btn">
-                                            ⬇ Download
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {filteredMaterials.length === 0 && (
-                        <div className="no-results">
-                            <p>No materials found matching your criteria.</p>
+                    {loading ? (
+                        <div className="loading-state">
+                            <div className="loading-spinner"></div>
+                            <p>Loading materials...</p>
                         </div>
+                    ) : error ? (
+                        <div className="error-state">
+                            <p>{error}</p>
+                            <button className="btn btn-primary" onClick={fetchMaterials}>
+                                Try Again
+                            </button>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="materials-list">
+                                {materialsData.map((material) => {
+                                    const { icon, color } = getIconAndColor(material.type);
+                                    return (
+                                        <div key={material._id} className="material-item card">
+                                            <div className="material-icon-wrapper" style={{ background: `${color}15` }}>
+                                                <span className="material-type-icon" style={{ color: color }}>
+                                                    {icon}
+                                                </span>
+                                            </div>
+                                            <div className="material-content">
+                                                <div className="material-main">
+                                                    <h3 className="material-title">{material.title}</h3>
+                                                    <div className="material-meta">
+                                                        <span className="material-category">{material.category}</span>
+                                                        <span className="material-dot">•</span>
+                                                        <span className="material-type-label">{material.type}</span>
+                                                        <span className="material-dot">•</span>
+                                                        <span className="material-size">{material.size}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="material-actions">
+                                                    <button
+                                                        className="btn btn-outline material-action-btn"
+                                                        onClick={() => handlePreview(material)}
+                                                    >
+                                                        👁 Preview
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-primary material-action-btn"
+                                                        onClick={() => handleDownload(material)}
+                                                    >
+                                                        ⬇ Download
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {materialsData.length === 0 && (
+                                <div className="no-results">
+                                    <p>No materials found matching your criteria.</p>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             </section>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './Contact.css';
+import { contactAPI } from '../api';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -9,20 +10,33 @@ const Contact = () => {
         message: ''
     });
     const [submitted, setSubmitted] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // In production, this would send to a backend
-        console.log('Form submitted:', formData);
-        setSubmitted(true);
-        setTimeout(() => {
-            setSubmitted(false);
-            setFormData({ name: '', email: '', subject: '', message: '' });
-        }, 3000);
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await contactAPI.submit(formData);
+            if (response.success) {
+                setSubmitted(true);
+                setTimeout(() => {
+                    setSubmitted(false);
+                    setFormData({ name: '', email: '', subject: '', message: '' });
+                }, 3000);
+            }
+        } catch (err) {
+            console.error('Error submitting form:', err);
+            setError(err.message || 'Failed to send message. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -54,6 +68,11 @@ const Contact = () => {
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmit} className="contact-form">
+                                    {error && (
+                                        <div className="error-message">
+                                            <p>{error}</p>
+                                        </div>
+                                    )}
                                     <div className="form-group">
                                         <label htmlFor="name">Full Name *</label>
                                         <input
@@ -64,6 +83,7 @@ const Contact = () => {
                                             onChange={handleChange}
                                             placeholder="Enter your full name"
                                             required
+                                            disabled={loading}
                                         />
                                     </div>
                                     <div className="form-group">
@@ -76,6 +96,7 @@ const Contact = () => {
                                             onChange={handleChange}
                                             placeholder="Enter your email"
                                             required
+                                            disabled={loading}
                                         />
                                     </div>
                                     <div className="form-group">
@@ -87,6 +108,7 @@ const Contact = () => {
                                             value={formData.subject}
                                             onChange={handleChange}
                                             placeholder="What is this about?"
+                                            disabled={loading}
                                         />
                                     </div>
                                     <div className="form-group">
@@ -99,10 +121,15 @@ const Contact = () => {
                                             placeholder="Type your message here..."
                                             rows="5"
                                             required
+                                            disabled={loading}
                                         ></textarea>
                                     </div>
-                                    <button type="submit" className="btn btn-primary btn-submit">
-                                        📨 Send Message
+                                    <button
+                                        type="submit"
+                                        className="btn btn-primary btn-submit"
+                                        disabled={loading}
+                                    >
+                                        {loading ? '⏳ Sending...' : '📨 Send Message'}
                                     </button>
                                 </form>
                             )}
