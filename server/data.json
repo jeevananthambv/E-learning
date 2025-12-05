@@ -1,0 +1,74 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "email": "admin@university.edu",
+      "password": "$2a$12$7e0DYH4xZzGh2P8ekKvhxe2RkCuxkm6R9707bRe.RHVa4f7U8LtQ6",
+      "name": "Madhankumar C"
+    }
+  ],
+  "videos": [
+    {
+      "id": "1",
+      "title": "Introduction to Data Structures",
+      "subject": "Data Structures",
+      "description": "Learn the fundamentals of data structures including arrays, linked lists, and their applications.",
+      "thumbnail": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=225&fit=crop",
+      "duration": "45:30",
+      "youtubeId": "dQw4w9WgXcQ",
+      "views": 0
+    },
+    {
+      "id": "2",
+      "title": "Object Oriented Programming Basics",
+      "subject": "Programming",
+      "description": "Understanding OOP concepts like classes, objects, inheritance, and polymorphism.",
+      "thumbnail": "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=225&fit=crop",
+      "duration": "38:15",
+      "youtubeId": "dQw4w9WgXcQ",
+      "views": 0
+    },
+    {
+      "id": "3",
+      "title": "Database Management Systems",
+      "subject": "DBMS",
+      "description": "Comprehensive overview of database concepts, SQL, and normalization techniques.",
+      "thumbnail": "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=400&h=225&fit=crop",
+      "duration": "52:00",
+      "youtubeId": "dQw4w9WgXcQ",
+      "views": 0
+    },
+    {
+      "id": "4",
+      "title": "Algorithm Analysis",
+      "subject": "Algorithms",
+      "description": "Learn how to analyze algorithm complexity and optimize your code for better performance.",
+      "thumbnail": "https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400&h=225&fit=crop",
+      "duration": "41:20",
+      "youtubeId": "dQw4w9WgXcQ",
+      "views": 0
+    },
+    {
+      "id": "5",
+      "title": "Operating Systems Concepts",
+      "subject": "Operating Systems",
+      "description": "Understanding process management, memory management, and file systems.",
+      "thumbnail": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=225&fit=crop",
+      "duration": "55:45",
+      "youtubeId": "dQw4w9WgXcQ",
+      "views": 0
+    },
+    {
+      "id": "6",
+      "title": "Computer Networks Fundamentals",
+      "subject": "Networking",
+      "description": "Learn about OSI model, TCP/IP, routing, and network security basics.",
+      "thumbnail": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=225&fit=crop",
+      "duration": "48:30",
+      "youtubeId": "dQw4w9WgXcQ",
+      "views": 0
+    }
+  ],
+  "materials": [],
+  "contacts": []
+}
